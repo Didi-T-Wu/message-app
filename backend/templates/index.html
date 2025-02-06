@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #ccc;
+            margin: 20px auto;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        #message {
+            width: 300px;
+        }
+        #send-btn {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Real-Time Chat</h2>
+<div id="chat"></div>
+<input type="text" id="message" placeholder="Type a message...">
+<button id="send-btn">Send</button>
+
+<script>
+    const socket = io.connect('http://127.0.0.1:5000');
+
+    const messageInput = document.getElementById('message');
+    const chatDiv = document.getElementById('chat');
+    const sendBtn = document.getElementById('send-btn');
+
+    // Handle connection
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+    // Handle message sending
+    sendBtn.onclick = () => {
+        const message = messageInput.value;
+        if (message) {
+            socket.send(message);  // Send the message to the Flask backend
+            messageInput.value = '';  // Clear the input
+        }
+    };
+
+    // Handle incoming messages from the backend
+    socket.on('message', function(msg) {
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = msg;
+        chatDiv.appendChild(messageDiv);
+        chatDiv.scrollTop = chatDiv.scrollHeight;  // Auto-scroll to the bottom
+    });
+</script>
+
+</body>
+</html>
