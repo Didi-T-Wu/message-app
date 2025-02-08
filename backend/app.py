@@ -14,6 +14,11 @@ def handle_message(msg):
     print(f"Message received: {msg}")
     send(msg, broadcast=True)
 
+@socketio.on('request_welcome')
+def handle_welcome(json):
+    print(f"Request received: {json['data']}")
+    emit('welcome',{ 'message' :"welcome!!"}, broadcast=True)
+
 @socketio.on('connect')
 def handle_connect():
     print("A user connected!")
