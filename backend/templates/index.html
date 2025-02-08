@@ -28,6 +28,9 @@
 <body>
 
 <h2>Real-Time Chat</h2>
+<div id='status'>Connecting ...</div>
+<div id='welcome-msg'></div>
+
 <div id="chat"></div>
 <input type="text" id="message" placeholder="Type a message...">
 <button id="send-btn">Send</button>
@@ -35,13 +38,25 @@
 <script>
     const socket = io.connect('http://127.0.0.1:5000');
 
+    const status = document.getElementById('status');
+    const welcomeMessage = document.getElementById('welcome-msg');
     const messageInput = document.getElementById('message');
     const chatDiv = document.getElementById('chat');
     const sendBtn = document.getElementById('send-btn');
 
     // Handle connection
     socket.on('connect', function() {
-        socket.emit('my event', {data: 'I\'m connected!'});
+        //TODO: Replace this with a flash message later
+        document.getElementById('status').textContent = 'Connected to server';
+        console.log("Connected to server!");
+        socket.emit('request_welcome', { data: "Can I get a welcome message?" });
+    });
+
+    // Handle welcome message
+    socket.on('welcome', function(data) {
+        //TODO: Replace this with a flash message later like 'Tom enter the room' and 'welcome'
+       console.log('Received welcome message:', data.message);
+       welcomeMessage.textContent = data.message;
     });
 
     // Handle message sending
