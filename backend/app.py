@@ -1,13 +1,15 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return "Flask Backend Running"
 
 @socketio.on('message')
 def handle_message(msg):
