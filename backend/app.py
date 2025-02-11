@@ -19,7 +19,8 @@ def handle_message(msg):
 @socketio.on('request_welcome')
 def handle_welcome(json):
     print(f"Request received: {json['data']}")
-    emit('welcome',{ 'message' :"welcome!!"}, broadcast=True)
+    emit('welcome',{ 'message' :"welcome from flask"}, broadcast=True)
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -30,4 +31,4 @@ def handle_disconnect():
     print("A user disconnected!")
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host="localhost", port=5001)
