@@ -1,44 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import React, { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
-const socket = io('http://localhost:5000');
+const socket = io("http://localhost:5001"); // Connect to the backend
 
-function Chat() {
-  const [message, setMessage] = useState('');
+const Chat = () => {
+  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    socket.on('message', (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
+    socket.on("message", (data) => {
+      setMessages((prevMessages) => [...prevMessages, data]);
     });
 
     return () => {
-      socket.off('message');
+      socket.off("message");
     };
   }, []);
 
-  const sendMessage = () => {
-    socket.send(message);
-    setMessage('');
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (message.trim()) {
+      socket.send(message); // Emit a message event
+      setMessage("");
+    }
   };
 
   return (
     <div>
-      <h1>Real-time Chat</h1>
-      <div>
+      <h2>Chat</h2>
+      <div style={{ border: "1px solid black", padding: "10px", height: "200px", overflowY: "scroll" }}>
         {messages.map((msg, index) => (
           <p key={index}>{msg}</p>
         ))}
       </div>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type a message..."
-      />
-      <button onClick={sendMessage}>Send</button>
+      <form onSubmit={sendMessage}>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type a message..."
+        />
+        <button type="submit">Send</button>
+      </form>
     </div>
   );
-}
+};
 
 export default Chat;

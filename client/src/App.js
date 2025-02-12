@@ -1,6 +1,6 @@
 import React, {useEffect, useState}from 'react';
 import './App.css';
-// import Chat from './Chat';
+import Chat from './Chat';
 import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -27,6 +27,7 @@ function App() {
     <div className="App">
       <h1>React + Flask SocketIO</h1>
       <p>{welcomeMessage}</p>
+      <Chat />
     </div>
   );
 }
