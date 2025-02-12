@@ -3,6 +3,9 @@ import { io } from "socket.io-client";
 
 const socket = io("http://localhost:5001"); // Connect to the backend
 
+// TODO: 1. Set username if new coming user is not Set
+//       2. add event to handle user joint
+//       3. add event to handle user left
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
