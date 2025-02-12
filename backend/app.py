@@ -17,9 +17,9 @@ def handle_message(msg):
     send(msg, broadcast=True)
 
 @socketio.on('request_welcome')
-def handle_welcome(json):
-    print(f"Request received: {json['data']}")
-    emit('welcome',{ 'message' :"welcome from flask"}, broadcast=True)
+def handle_welcome(data):
+    print(f"Request received: {data['msg']}")
+    emit('welcome',{ 'msg' :"welcome from flask"}, broadcast=True)
 
 
 @socketio.on('connect')

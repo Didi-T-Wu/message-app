@@ -11,12 +11,12 @@ function App() {
 
   useEffect(() => {
     socket.on('welcome', (data) => {
-      console.log('Welcome message:', data.message);
-      setWelcomeMessage(data.message);
+      console.log('Welcome message:', data.msg);
+      setWelcomeMessage(data.msg);
     });
 
     // Send request to backend after connection
-    socket.emit('request_welcome', { data: 'User connected' });
+    socket.emit('request_welcome', { msg: 'User connected' });
 
     return () => {
       socket.off('welcome');
