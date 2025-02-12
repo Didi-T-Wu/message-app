@@ -6,6 +6,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
+# TODO:   Add more users by
+#           1. adding a function to handle new users
+#               . use request.sid to get  and set the id of the user
+#               . adding a function to handle user disconnection
+#           2. Add a function to handle user messages
+#           3. Add a function to handle users when user left the chat
 
 @app.route('/')
 def index():
