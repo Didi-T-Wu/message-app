@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 
@@ -6,12 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
-# TODO:   Add more users by
-#           1. adding a function to handle new users
-#               . use request.sid to get  and set the id of the user
-#               . adding a function to handle user disconnection
-#           2. Add a function to handle user messages
-#           3. Add a function to handle users when user left the chat
+
 users={}
 
 @app.route('/')
@@ -20,15 +15,21 @@ def index():
 
 @socketio.on('message')
 def handle_message(msg):
-    username = "Anonymous"
-    print(f"Message received: {msg}")
+    user_id= request.sid
+    username = users.get(user_id,"Anonymous")
+    print(f"Message from {username}: {msg}")
     send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
-    # TODO:  Change username when I have one
 
-# TODO:  Add a function to handle new users
+
+
 @socketio.on('set_username')
 def handle_username(data):
-    pass
+    username = data.get('username', 'Anonymous')
+    print(f"Username set: {username}")
+    user_id = request.sid
+    users[user_id] = username
+    emit('user_joined',{'system': True, 'msg':f"{username} joined the chat"}, broadcast=True)
+    emit('username_confirmed', {'username': username})  # Notify frontend
 
 
 @socketio.on('request_welcome')
@@ -43,7 +44,11 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print("A user disconnected!")
+    user_id = request.sid
+    username = users.pop(user_id, None)
+    if username:
+        emit('user_left',{'system': True, 'msg':f"{username} left the chat"}, broadcast=True)
+    print(f"User {username if username else 'Unknown'} ({user_id}) disconnected!")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host="localhost", port=5001)
