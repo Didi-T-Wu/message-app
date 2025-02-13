@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
     if not SECRET_KEY:
         raise RuntimeError("SECRET_KEY environment variable is not set. Exiting...")
 
