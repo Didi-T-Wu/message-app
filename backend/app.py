@@ -11,8 +11,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# config
-DATABASE_URL = os.getenv('DATABASE_URL')
+# config TODO: Move to a separate file
+DATABASE_URL = os.getenv('DATABASE_URL','postgresql:///chat_app')
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL environment variable is not set. Exiting...")
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
