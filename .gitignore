@@ -50,3 +50,4 @@ eslintcache/
 *.swp
 *.swo
 
+.env
