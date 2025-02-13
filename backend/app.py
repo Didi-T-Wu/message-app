@@ -19,8 +19,10 @@ def index():
 
 @socketio.on('message')
 def handle_message(msg):
+    username = "Anonymous"
     print(f"Message received: {msg}")
-    send(msg, broadcast=True)
+    send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
+    # TODO:  Change username when I have one
 
 @socketio.on('request_welcome')
 def handle_welcome(data):

@@ -32,8 +32,8 @@ const Chat = () => {
     <div>
       <h2>Chat</h2>
       <div style={{ border: "1px solid black", padding: "10px", height: "200px", overflowY: "scroll" }}>
-        {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
+        {messages.map((data, index) => (
+          <p key={index}>{data.msg}</p>
         ))}
       </div>
       <form onSubmit={sendMessage}>
