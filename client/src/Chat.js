@@ -81,7 +81,12 @@ const Chat = () => {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
          />
-         <button type="submit">Send</button>
+         <button
+          type="submit"
+          disabled={!message.trim()}
+          >
+            Send
+          </button>
         </form>
         </div>):(
           <div>
@@ -92,9 +97,11 @@ const Chat = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Type your username..."
+
             />
               <button
                 type="submit"
+                disabled={!username.trim()}
                 >
                   Join the Chat
               </button>
