@@ -1,11 +1,35 @@
+import os
+from dotenv import load_dotenv
+
 from flask import Flask, request
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate  # Import Flask-Migrate
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret'
+
+# config
+DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set. Exiting...")
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable is not set. Exiting...")
+app.config['SECRET_KEY'] = SECRET_KEY
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)  # Initialize Flask-Migrate
+
 
 users={}
 
