@@ -14,9 +14,10 @@ def index():
     return "Flask Backend Running"
 
 @socketio.on('message')
-def handle_message(msg):
-    user_id= request.sid
+def handle_message(data):
+    user_id = request.sid
     username = users.get(user_id,"Anonymous")
+    msg = data.get('msg',"")
     print(f"Message from {username}: {msg}")
     send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
 
