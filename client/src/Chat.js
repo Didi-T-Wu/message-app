@@ -27,7 +27,9 @@ const Chat = () => {
       setMessage("");
     }
   };
-
+  // TODO: build a form than prompt user to enter username if not set
+  //       and a function that send user name to the server
+  //       localStorage
   return (
     <div>
       <h2>Chat</h2>

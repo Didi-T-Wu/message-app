@@ -12,6 +12,7 @@ CORS(app)
 #               . adding a function to handle user disconnection
 #           2. Add a function to handle user messages
 #           3. Add a function to handle users when user left the chat
+users={}
 
 @app.route('/')
 def index():
@@ -23,6 +24,12 @@ def handle_message(msg):
     print(f"Message received: {msg}")
     send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
     # TODO:  Change username when I have one
+
+# TODO:  Add a function to handle new users
+@socketio.on('set_username')
+def handle_username(data):
+    pass
+
 
 @socketio.on('request_welcome')
 def handle_welcome(data):
