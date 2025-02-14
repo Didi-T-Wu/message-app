@@ -5,6 +5,7 @@ from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
 
+# TODO: work with database(User, Message)
 app = Flask(__name__)
 app.config.from_object(Config)
 

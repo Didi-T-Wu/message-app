@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+# TODO: FIXME: created_at TIMESTAMP WITHOUT TIME ZONE
 
 class User(db.Model):
     """User model"""
