@@ -1,19 +1,18 @@
 from flask import Flask, request
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
+from models import User, Message, connect_db, db
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
-db = SQLAlchemy(app)
+connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
-from models import User, Message
 
 users={}
 
