@@ -13,6 +13,7 @@ CORS(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
+from models import User, Message
 
 users={}
 
