@@ -15,8 +15,11 @@ CORS(app)
 connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
-
-guest_users={}
+# Later ### TODO: handle guest users
+# later in 'set-username' ##
+#### TODO: allow guest users? to set their username
+# later  in 'disconnect' ##
+#### TODO: handle guest users(in guest_users)
 
 @app.route('/')
 def index():
@@ -32,13 +35,16 @@ def handle_message(data):
     send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
 
 
-# TODO: allow guest users? to set their username
 # TODO: handle users storing in database
 @socketio.on('set_username')
 def handle_username(data):
-    # will there be a case where no username is provided?
+
     username = data.get('username', 'Anonymous')
+    if not username:
+        # if no username provided, set it to Anonymous
+        username = "Anonymous"
     print(f"Username set: {username}")
+
     user_id = request.sid #for later use for quest users
     # users[user_id] = username #########
     existing_user = User.query.filter_by(username=username).one_or_none()
@@ -66,7 +72,7 @@ def handle_welcome(data):
 def handle_connect():
     print("A user connected!")
 
-#TODO: handle guest users(in guest_users) and logged in users(stay in database)
+
 @socketio.on('disconnect')
 def handle_disconnect():
     user_id = request.sid
