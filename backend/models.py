@@ -8,8 +8,10 @@ db = SQLAlchemy()
 class User(db.Model):
     """User model"""
 
+    __tablename__ = 'users'
+
     id = db.Column(
-        db.Integer,
+        db.String,
         primary_key=True
     )
 
@@ -34,14 +36,16 @@ class User(db.Model):
 class Message(db.Model):
     """Message model"""
 
+    __tablename__ = 'messages'
+
     id = db.Column(
         db.Integer,
         primary_key=True
     )
 
     user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('user.id'),
+        db.String,
+        db.ForeignKey('users.id'),
         nullable=False
     )
 

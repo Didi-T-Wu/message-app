@@ -4,8 +4,9 @@ from flask_cors import CORS
 from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
+from uuid import uuid4
 
-# TODO: work with database(User, Message)
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -15,12 +16,13 @@ connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
 
-users={}
+guest_users={}
 
 @app.route('/')
 def index():
     return "Flask Backend Running"
 
+# TODO: work with database( Message)
 @socketio.on('message')
 def handle_message(data):
     user_id = request.sid
@@ -30,16 +32,29 @@ def handle_message(data):
     send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
 
 
-
+# TODO: allow guest users? to set their username
+# TODO: handle users storing in database
 @socketio.on('set_username')
 def handle_username(data):
+    # will there be a case where no username is provided?
     username = data.get('username', 'Anonymous')
     print(f"Username set: {username}")
-    user_id = request.sid
-    users[user_id] = username
-    emit('user_joined',{'system': True, 'msg':f"{username} joined the chat"}, broadcast=True)
-    emit('username_confirmed', {'username': username})  # Notify frontend
+    user_id = request.sid #for later use for quest users
+    # users[user_id] = username #########
+    existing_user = User.query.filter_by(username=username).one_or_none()
+    if existing_user:
+        emit('username_has_taken', {'username_taken': username})
+        return
 
+    new_user = User(id=str(uuid4()), username=username)
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        print(f"Database error: {e}")
+        db.session.rollback()
+        emit('error', {'msg': 'Failed to set username'}, to=user_id)
+        return
 
 @socketio.on('request_welcome')
 def handle_welcome(data):
@@ -51,10 +66,11 @@ def handle_welcome(data):
 def handle_connect():
     print("A user connected!")
 
+#TODO: handle guest users(in guest_users) and logged in users(stay in database)
 @socketio.on('disconnect')
 def handle_disconnect():
     user_id = request.sid
-    username = users.pop(user_id, None)
+    username = guest_users.pop(user_id, None)
     if username:
         emit('user_left',{'system': True, 'msg':f"{username} left the chat"}, broadcast=True)
     print(f"User {username if username else 'Unknown'} ({user_id}) disconnected!")
