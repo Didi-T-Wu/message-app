@@ -91,7 +91,7 @@ def handle_username(data):
         emit('error', {'msg': 'Failed to set username'}, to=request.sid)
         return
     # Successfully set the username
-    emit('username_confirmed', {'username':username, 'user_uuid':user_uuid})
+    emit('username_set', {'username':username, 'user_uuid':user_uuid})
 
 @socketio.on('request_welcome')
 def handle_welcome(data):

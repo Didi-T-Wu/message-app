@@ -24,7 +24,7 @@ const Chat = () => {
     });
 
 
-    socket.on("username_confirmed", (data) => {
+    socket.on("username_set", (data) => {
       console.log(`${data.username} is set`)
       localStorage.setItem('username',data.username)
       setIsUserSet(true)
@@ -34,7 +34,7 @@ const Chat = () => {
       socket.off("message");
       socket.off("user_joined");
       socket.off("user_left");
-      socket.off("username_confirmed")
+      socket.off("username_set")
     };
   }, []);
 
