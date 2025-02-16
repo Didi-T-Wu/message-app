@@ -10,6 +10,7 @@ const Chat = () => {
   const [isUserSet, setIsUserSet] = useState(()=> !!localStorage.getItem('username') );
   const [username, setUsername] = useState(()=> localStorage.getItem('username') || '');
 
+
   useEffect(() => {
     socket.on("message", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
@@ -27,6 +28,7 @@ const Chat = () => {
     socket.on("username_set", (data) => {
       console.log(`${data.username} is set`)
       localStorage.setItem('username',data.username)
+      localStorage.setItem('user_id', data.user_id)
       setIsUserSet(true)
     });
 
@@ -50,7 +52,7 @@ const Chat = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      socket.emit('message',{ 'msg':message }); // Emit a message event
+      socket.emit('message',{ 'msg':message, 'user_id':localStorage.getItem('user_id', '') }); // Emit a message event
       setMessage("");
     }
   };

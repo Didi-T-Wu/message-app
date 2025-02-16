@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 
 app = Flask(__name__)
@@ -28,14 +28,37 @@ def index():
 # TODO: work with database( Message)
 @socketio.on('message')
 def handle_message(data):
-    user_id = request.sid
-    username = users.get(user_id,"Anonymous")
-    msg = data.get('msg',"")
-    print(f"Message from {username}: {msg}")
-    send({'system': False, 'username':username, 'msg':msg}, broadcast=True)
+
+    user_id_from_frontend = data.get('user_id','')
+    msg = data.get('msg',"").strip()
+
+    if not user_id_from_frontend or not msg:
+        emit('error', {'msg': 'Invalid user or empty message'}, to=request.sid)
+        return
 
 
-# TODO: handle users storing in database
+    cur_user = User.query.filter_by(id =  user_id_from_frontend).one_or_none()
+
+    if not cur_user:
+        emit('error', {'msg': 'User not found'}, to=request.sid)
+        return
+
+
+    new_msg= Message(user_id = cur_user.id, text=msg)
+
+    try:
+        db.session.add(new_msg)
+        db.session.commit()
+    except Exception as e:
+        print(f"Database error: {e}")
+        db.session.rollback() # Undo the changes made during this session
+        emit('error', {'msg': 'Failed to store message'}, to=request.sid)
+        return
+
+    print(f"Message from {cur_user.username}: {msg}")
+    send({'system': False, 'username':cur_user.username, 'msg':msg}, broadcast=True)
+
+
 @socketio.on('set_username')
 def handle_username(data):
     """
@@ -73,6 +96,7 @@ def handle_username(data):
     existing_user = User.query.filter_by(username=username).one_or_none()
     if existing_user:
         #TODO: handle username taken, flash message in frontend
+        # FIXME: I want to let user to reuse the username
         emit('username_has_taken', {'username_taken': username})
         return
 
@@ -83,6 +107,7 @@ def handle_username(data):
         # Add new user to the database
         db.session.add(new_user)
         db.session.commit()
+
         # TODO: Optionally store the UUID to socket ID mapping here if needed
         # user_socket_mapping[user_uuid] = request.sid
     except Exception as e:
@@ -91,7 +116,7 @@ def handle_username(data):
         emit('error', {'msg': 'Failed to set username'}, to=request.sid)
         return
     # Successfully set the username
-    emit('username_set', {'username':username, 'user_uuid':user_uuid})
+    emit('username_set', {'username':username, 'user_id':user_uuid})
 
 @socketio.on('request_welcome')
 def handle_welcome(data):
