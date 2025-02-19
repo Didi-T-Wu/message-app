@@ -1,4 +1,5 @@
 import React, {useEffect, useState}from 'react';
+import { Routes, Route } from 'react-router-dom'
 import './App.css';
 import { io } from 'socket.io-client';
 
@@ -29,8 +30,10 @@ function App() {
     <div className="App">
       <h1>React + Flask SocketIO</h1>
       <p>{welcomeMessage}</p>
-      <Login/>
-      <Chat />
+      <Routes>
+        <Route path="/Chat" element={<Chat />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
     </div>
   );
 }
