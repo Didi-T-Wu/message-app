@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 
 const Login = ()=> {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({username:'', password:''})
 
+  const onFormDataChange=(e)=>{
 
+    const {value, name} = e.target
 
-  const onUsernameChange=(e)=>{
-    setUsername(e.target.value)
-
-  }
-
-  const onPasswordChange=(e)=>{
-    setPassword(e.target.value)
+    setFormData((formData)=> ({...formData,[name]:value}))
 
   }
 
   const onFormSubmit=(e)=>{
     e.preventDefault()
-
+    // TODO: Handle login logic (API call, validation, etc.)
+    console.log("Login Data:", formData);
   }
 
   return(<div>
@@ -26,10 +22,10 @@ const Login = ()=> {
       <label htmlFor='username'>Username</label>
       <input
        type="text"
-       name="text"
+       name="username"
        id="username"
-       value={username}
-       onChange={onUsernameChange}
+       value={formData.username}
+       onChange={onFormDataChange}
        placeholder="Type your username"
       >
       </input>
@@ -38,8 +34,8 @@ const Login = ()=> {
        type="password"
        name="password"
        id='password'
-       value={password}
-       onChange={onPasswordChange}
+       value={formData.password}
+       onChange={onFormDataChange}
        placeholder="Type your password"
       >
       </input>
