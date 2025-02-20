@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { Link } from 'react-router-dom'
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
 
@@ -27,6 +27,7 @@ const Login = ()=> {
        value={formData.username}
        onChange={onFormDataChange}
        placeholder="Type your username"
+       autoComplete="off"
       >
       </input>
       <label htmlFor='password'>Password</label>
@@ -37,13 +38,13 @@ const Login = ()=> {
        value={formData.password}
        onChange={onFormDataChange}
        placeholder="Type your password"
+       autoComplete="off"
       >
       </input>
       <button>Login</button>
     </form>
     <br/> or
-    {/* FIXME:  react router to sign in page*/}
-    <div>Create an Account (To sign in page)</div>
+    <div><Link to='/signup'>Create an Account</Link></div>
   </div>)
 
 }
