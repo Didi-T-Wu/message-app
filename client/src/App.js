@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 
 import Chat from './Chat';
 import Login from './login/Login';
+import Signup from './signup/Signup';
 
 const socket = io('http://localhost:5001');
 
@@ -31,8 +32,9 @@ function App() {
       <h1>React + Flask SocketIO</h1>
       <p>{welcomeMessage}</p>
       <Routes>
-        <Route path="/Chat" element={<Chat />} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup/>} />
       </Routes>
     </div>
   );
