@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
+  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate()
 
   const onFormDataChange=(e)=>{
@@ -12,8 +13,9 @@ const Login = ()=> {
 
   const onFormSubmit= async (e)=> {
     e.preventDefault()
-    // TODO: Handle login logic (API call, validation, etc.)
+    // TODO: Handle login logic (validation, etc.)
     console.log("Login Data:", formData);
+    setErrorMsg('');
 
     try{
       const response =  await fetch("http://localhost:5000/api/login", {
@@ -43,7 +45,7 @@ const Login = ()=> {
 
 
     }catch(err){
-       console.error('Error during login',err)
+       setErrorMsg(err.message)
     }
 
   }
@@ -74,6 +76,9 @@ const Login = ()=> {
       </input>
       <button>Login</button>
     </form>
+
+    {errorMsg && <p style={{color:'red'}}>{errorMsg}</p>}
+
     <br/> or
     <div><Link to='/signup'>Create an Account</Link></div>
   </div>)
