@@ -75,34 +75,36 @@ const Login = ()=> {
 
   return(<div>
     <form onSubmit={onFormSubmit}>
-      <label htmlFor='username'>Username</label>
-      <input
-       type="text"
-       name="username"
-       id="username"
-       value={formData.username}
-       onChange={onFormDataChange}
-       placeholder="Type your username"
-       autoComplete="off"
-      >
-      </input>
-      <label htmlFor='password'>Password</label>
-      <input
-       type="password"
-       name="password"
-       id='password'
-       value={formData.password}
-       onChange={onFormDataChange}
-       placeholder="Type your password"
-       autoComplete="off"
-      >
-      </input>
+      <label>
+        Username
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={onFormDataChange}
+          placeholder="Type your username"
+          autoComplete="off"
+          >
+        </input>
+      </label>
+      <label >
+        Password
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={onFormDataChange}
+          placeholder="Type your password"
+          autoComplete="off"
+        >
+        </input>
+      </label>
       <button type="submit" disabled={loading}>
       {loading? "Logging in...":"Login"}
       </button>
     </form>
 
-    {errorMsg && <p style={{color:'red'}}>{errorMsg}</p>}
+    {errorMsg && <p style={{color:'red'}} aria-live="assertive" >{errorMsg}</p>}
 
     <br/> or
     <div><Link to='/signup'>Create an Account</Link></div>
