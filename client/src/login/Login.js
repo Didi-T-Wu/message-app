@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (errorMsg) {
+      const timer = setTimeout(() => {
+        setErrorMsg('');
+      }, 5000); // Clear error after 5 seconds
+
+      return () => clearTimeout(timer); // Clean up the timer on component unmount
+    }
+  }, [errorMsg]);
+
 
   const onFormDataChange=(e)=>{
     const {value, name} = e.target
