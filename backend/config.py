@@ -12,7 +12,7 @@ class Config:
     if not SQLALCHEMY_DATABASE_URI:
         raise RuntimeError("DATABASE_URL environment variable is not set. Exiting...")
 
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwtsecretkey")  # Change in production
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt_secret_key")  # Change in production
     if not JWT_SECRET_KEY:
         raise RuntimeError("JWT_SECRET_KEY environment variable is not set. Exiting...")
 
