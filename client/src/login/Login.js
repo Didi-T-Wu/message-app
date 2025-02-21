@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom'
+import { ClipLoader } from "react-spinners";
 
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
@@ -106,7 +107,7 @@ const Login = ()=> {
         </input>
       </label>
       <button type="submit" disabled={loading}>
-      {loading? "Logging in...":"Login"}
+      {loading ? <ClipLoader size={15} color="#ffffff" /> : "Login"}
       </button>
     </form>
     {errorMsg && <p style={{color:'red'}} aria-live="assertive" >{errorMsg}</p>}
