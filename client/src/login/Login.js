@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -63,7 +64,8 @@ const Login = ()=> {
       console.log("Login successful")
       localStorage.setItem('token', data.token)
       localStorage.setItem('user_id', data.user_id);
-      navigate('/chat')
+      setSuccessMsg("Login successful! Redirecting...");
+      setTimeout(() => navigate('/chat'), 1500);  // Wait 1.5 sec before redirecting
 
 
     }catch(err){
@@ -103,9 +105,8 @@ const Login = ()=> {
       {loading? "Logging in...":"Login"}
       </button>
     </form>
-
     {errorMsg && <p style={{color:'red'}} aria-live="assertive" >{errorMsg}</p>}
-
+    {successMsg && <p style={{ color: 'green' }} aria-live="polite">{successMsg}</p>}
     <br/> or
     <div><Link to='/signup'>Create an Account</Link></div>
   </div>)
