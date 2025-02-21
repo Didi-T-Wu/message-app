@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const Login = ()=> {
     e.preventDefault()
     // TODO: Handle login logic (validation, etc.)
     console.log("Login Data:", formData);
+    setLoading(true);
     setErrorMsg('');
 
     try{
@@ -57,8 +59,9 @@ const Login = ()=> {
 
     }catch(err){
        setErrorMsg(err.message)
+    } finally{
+      setLoading(false);
     }
-
   }
 
   return(<div>
@@ -85,7 +88,9 @@ const Login = ()=> {
        autoComplete="off"
       >
       </input>
-      <button>Login</button>
+      <button type="submit" disabled={loading}>
+      {loading? "Logging in...":"Login"}
+      </button>
     </form>
 
     {errorMsg && <p style={{color:'red'}}>{errorMsg}</p>}
