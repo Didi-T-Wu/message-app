@@ -9,7 +9,7 @@ const Login = ()=> {
     const {value, name} = e.target
     setFormData((formData)=> ({...formData,[name]:value}))
   }
-  // TODO: Set Up the API Call
+
   const onFormSubmit= async (e)=> {
     e.preventDefault()
     // TODO: Handle login logic (API call, validation, etc.)
@@ -23,8 +23,18 @@ const Login = ()=> {
       })
 
       if(!response.ok){
-        throw new Error('Network response was not ok')
-      }
+        switch(response.status){
+          case 401:
+            throw new Error('Invalid credentials')
+          case 400:
+            throw new Error('Bad request, check your input')
+          case 404:
+            throw new Error('Endpoint not found')
+          case 500:
+            throw new Error('Server error, please try again later');
+          default:
+            throw new Error('Something went wrong');
+      }}
 
       const data = await response.json()
       console.log("Login successful")
