@@ -25,6 +25,11 @@ migrate = Migrate(app, db)  # Initialize Flask-Migrate
 def index():
     return "Flask Backend Running"
 
+#  TODO:Set Up Backend Login Endpoint
+@app.route('/api/login', methods=['POST'])
+def login():
+    pass
+
 # TODO: work with database( Message)
 @socketio.on('message')
 def handle_message(data):
