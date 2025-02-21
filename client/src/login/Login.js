@@ -25,7 +25,14 @@ const Login = ()=> {
 
   const onFormSubmit= async (e)=> {
     e.preventDefault()
+
     // TODO: Handle login logic (validation, etc.)
+    // Prevent submission if fields are empty
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setErrorMsg("Username and password are required");
+      return;
+    }
+
     console.log("Login Data:", formData);
     setLoading(true);
     setErrorMsg('');
