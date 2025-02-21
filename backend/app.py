@@ -27,7 +27,7 @@ bcrypt = Bcrypt()
 def index():
     return "Flask Backend Running"
 
-#  TODO:Set Up Backend Login Endpoint
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
