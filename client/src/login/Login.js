@@ -38,11 +38,12 @@ const Login = ()=> {
       })
 
       if(!response.ok){
+        const errorData = await response.json();
         switch(response.status){
           case 401:
-            throw new Error('Invalid credentials')
+            throw new Error(errorData.msg || 'Invalid credentials')
           case 400:
-            throw new Error('Bad request, check your input')
+            throw new Error(errorData.msg || 'Bad request, check your input')
           case 404:
             throw new Error('Endpoint not found')
           case 500:
@@ -54,6 +55,7 @@ const Login = ()=> {
       const data = await response.json()
       console.log("Login successful")
       localStorage.setItem('token', data.token)
+      localStorage.setItem('user_id', data.user_id);
       navigate('/chat')
 
 
