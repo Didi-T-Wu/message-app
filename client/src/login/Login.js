@@ -50,13 +50,13 @@ const Login = ()=> {
           case 401:
             throw new Error(errorData.msg || 'Invalid credentials')
           case 400:
-            throw new Error(errorData.msg || 'Bad request, check your input')
+            throw new Error(errorData.msg || "Invalid input. Please check your details and try again.")
           case 404:
-            throw new Error('Endpoint not found')
+            throw new Error("Server not found. Please try again later.")
           case 500:
-            throw new Error('Server error, please try again later');
+            throw new Error("Internal server error. Please try again in a few minutes.");
           default:
-            throw new Error('Something went wrong');
+            throw new Error("An unexpected error occurred. Please try again.");
       }}
 
       const data = await response.json()
