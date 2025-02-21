@@ -1,20 +1,41 @@
 import React, { useState } from "react";
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
+  const navigate = useNavigate()
 
   const onFormDataChange=(e)=>{
-
     const {value, name} = e.target
-
     setFormData((formData)=> ({...formData,[name]:value}))
-
   }
-
-  const onFormSubmit=(e)=>{
+  // TODO: Set Up the API Call
+  const onFormSubmit= async (e)=> {
     e.preventDefault()
     // TODO: Handle login logic (API call, validation, etc.)
     console.log("Login Data:", formData);
+
+    try{
+      const response =  await fetch("http://localhost:5000/api/login", {
+        method:"POST",
+        headers:{ "Content-Type": "application/json" },
+        body:JSON.stringify(formData)
+      })
+
+      if(!response.ok){
+        throw new Error('Network response was not ok')
+      }
+
+      const data = await response.json()
+      console.log("Login successful")
+      localStorage.setItem('token', data.token)
+      navigate('/chat')
+
+
+    }catch(err){
+       console.error('Error during login',err)
+    }
+
   }
 
   return(<div>
