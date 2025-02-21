@@ -5,7 +5,8 @@ from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
 from uuid import uuid4, UUID
-
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -14,6 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
+bcrypt = Bcrypt()
 
 # Later ### TODO: handle guest users
 # later in 'set-username' ##
@@ -28,7 +30,23 @@ def index():
 #  TODO:Set Up Backend Login Endpoint
 @app.route('/api/login', methods=['POST'])
 def login():
-    pass
+    data = request.json
+    username = data.username
+    password = data.password
+
+    if not username or not password:
+        return  {'msg':"Missing username or password"}, 400
+
+    user = User.query.filter(username =username).first()
+
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return  {'msg':"Invalid Credentials"}, 401
+
+    # Generate JWT token
+    access_token = create_access_token(identity=user.id)
+
+    return {"msg": "Login successful", "token": access_token, "user_id": user.id}
+
 
 # TODO: work with database( Message)
 @socketio.on('message')
