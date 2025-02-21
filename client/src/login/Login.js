@@ -69,7 +69,11 @@ const Login = ()=> {
 
 
     }catch(err){
-       setErrorMsg(err.message)
+      if (err.message.includes("Failed to fetch")) {
+        setErrorMsg("Network error. Check your internet connection and try again.");
+      } else {
+        setErrorMsg(err.message);
+      }
     } finally{
       setLoading(false);
     }
