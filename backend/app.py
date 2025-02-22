@@ -120,6 +120,7 @@ def handle_message(data):
 
 
 @socketio.on('set_username')
+@jwt_required()
 def handle_username(data):
     """
     Handles the 'set_username' event from a client.
