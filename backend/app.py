@@ -46,7 +46,7 @@ def login():
 
     return {"msg": "Login successful", "token": access_token, "user_id": user.id}
 
-#TODO: /api/register route to create new users.
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
