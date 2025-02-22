@@ -62,7 +62,7 @@ def register():
         return {"msg":"Username already taken"}, 400
 
     user_uuid = str(uuid4())
-    hashed_password = bcrypt.generate_password_hash(password).decode('utd8')
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf8')
     new_user = User(id=user_uuid, username=username, password=hashed_password)
 
     try:
