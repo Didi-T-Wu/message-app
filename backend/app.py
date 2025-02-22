@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
-from uuid import uuid4, UUID
+from uuid import uuid4
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
@@ -27,7 +27,6 @@ bcrypt = Bcrypt()
 def index():
     return "Flask Backend Running"
 
-
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -46,6 +45,35 @@ def login():
     access_token = create_access_token(identity=user.id)
 
     return {"msg": "Login successful", "token": access_token, "user_id": user.id}
+
+#TODO: /api/register route to create new users.
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.username
+    password = data.password
+
+    if not username or not password:
+        return {"msg":"Missing username or password"}, 400
+
+    existing_user = User.query.filter(username=username).first()
+
+    if existing_user:
+        return {"msg":"Username already taken"}, 400
+
+    user_uuid = str(uuid4())
+    hashed_password = bcrypt.generate_password_hash(password).decode('utd8')
+    new_user = User(id=user_uuid, username=username, password=hashed_password)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return {"msg": "User registered successfully"}, 201
+    except Exception as e:
+        db.session.rollback()
+        return {"msg": f"Error registering user: {str(e)}"}, 500
+
+
 
 
 # TODO: work with database( Message)
