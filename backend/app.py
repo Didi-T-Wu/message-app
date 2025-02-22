@@ -30,8 +30,8 @@ def index():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    username = data.username
-    password = data.password
+    username = data.get("username")
+    password = data.get("password")
 
     if not username or not password:
         return  {'msg':"Missing username or password"}, 400
@@ -50,8 +50,8 @@ def login():
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
-    username = data.username
-    password = data.password
+    username = data.get("username")
+    password = data.get("password")
 
     if not username or not password:
         return {"msg":"Missing username or password"}, 400
@@ -68,7 +68,16 @@ def register():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return {"msg": "User registered successfully"}, 201
+
+        # Generate JWT token
+        access_token = create_access_token(identity=new_user.id)
+
+        return {
+            "msg": "User registered successfully",
+            "token": access_token,
+            "user_id": new_user.id
+            }, 201
+
     except Exception as e:
         db.session.rollback()
         return {"msg": f"Error registering user: {str(e)}"}, 500
