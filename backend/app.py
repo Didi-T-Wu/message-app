@@ -15,12 +15,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
-bcrypt = Bcrypt()
+bcrypt = Bcrypt(app)
 
 # Later ### TODO: handle guest users
-# later in 'set-username' ##
-#### TODO: allow guest users? to set their username
-# later  in 'disconnect' ##
+#### TODO: later  in 'disconnect' ##
 #### TODO: handle guest users(in guest_users)
 
 @app.route('/')
