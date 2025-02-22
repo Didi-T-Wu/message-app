@@ -2,12 +2,14 @@ import React, {useEffect, useState}from 'react';
 import { Routes, Route } from 'react-router-dom'
 import './App.css';
 import { io } from 'socket.io-client';
+import { API_BASE_URL } from './config';
+
 
 import Chat from './Chat';
 import Login from './login/Login';
 import Signup from './signup/Signup';
 
-const socket = io('http://localhost:5001');
+const socket = io(API_BASE_URL);
 
 
 function App() {

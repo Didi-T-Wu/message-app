@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import { API_BASE_URL } from './config';
 
-const socket = io("http://localhost:5001"); // Connect to the backend
+const socket = io(API_BASE_URL); // Connect to the backend
 // TODO: handle guest users
 // TODO: Add timestamp to the messages
 const Chat = () => {
