@@ -119,66 +119,6 @@ def handle_message(data):
     send({'system': False, 'username':cur_user.username, 'msg':msg}, broadcast=True)
 
 
-@socketio.on('set_username')
-@jwt_required()
-def handle_username(data):
-    """
-    Handles the 'set_username' event from a client.
-
-    This function set a username for a user in the system.It performs the following:
-    1. Checks if a 'username' is provided in the event data. If not, it defaults to 'Anonymous'.
-    2. Validates that the username is not already taken by another user.
-    3. If the username is available, it generates a new UUID for the user,
-        and saves the user in the database.
-    4. If the username is taken, emit emit 'username_has_taken' event to notify the frontend.
-    5. If an error occurs during the database operation,
-        it rolls back the transaction and sends an error message.
-    6. If the operation is successful, it emits 'username_confirmed' to frontend
-        with new username and user UUID.
-
-    Args:
-        data(dic): the event data received from the client, expected to contain a 'username' key.
-    Returns:
-        None.
-    Emits:
-        'username_has_taken': Sent when username is taken.
-        'error': Sent when there is a database error occurs during the user creation process.
-        'username_set':Sent when the username is successfully set.
-    Exceptions:
-        Any exceptions during database operations are caught
-          and handled by rolling back the session and emitting an error message to the client.
-    """
-
-    # If no username provided, set it to Anonymous
-    username = data.get('username', 'Anonymous')
-    print(f"Username set: {username}")
-
-    # Check if the username already exists
-    existing_user = User.query.filter_by(username=username).one_or_none()
-    if existing_user:
-        #TODO: handle username taken, flash message in frontend
-        # FIXME: I want to let user to reuse the username
-        emit('username_has_taken', {'username_taken': username})
-        return
-
-    # Generate new user and user UUID
-    user_uuid = str(uuid4())
-    new_user = User(id=user_uuid, username=username)
-    try:
-        # Add new user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        # TODO: Optionally store the UUID to socket ID mapping here if needed
-        # user_socket_mapping[user_uuid] = request.sid
-    except Exception as e:
-        print(f"Database error: {e}")
-        db.session.rollback() # Undo the changes made during this session
-        emit('error', {'msg': 'Failed to set username'}, to=request.sid)
-        return
-    # Successfully set the username
-    emit('username_set', {'username':username, 'user_id':user_uuid})
-
 @socketio.on('request_welcome')
 def handle_welcome(data):
     print(f"Request received: {data['msg']}")
