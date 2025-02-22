@@ -36,7 +36,7 @@ def login():
     if not username or not password:
         return  {'msg':"Missing username or password"}, 400
 
-    user = User.query.filter(username =username).first()
+    user = User.query.filter_by(username =username).first()
 
     if not user or not bcrypt.check_password_hash(user.password, password):
         return  {'msg':"Invalid Credentials"}, 401
@@ -56,7 +56,7 @@ def register():
     if not username or not password:
         return {"msg":"Missing username or password"}, 400
 
-    existing_user = User.query.filter(username=username).first()
+    existing_user = User.query.filter_by(username=username).first()
 
     if existing_user:
         return {"msg":"Username already taken"}, 400
