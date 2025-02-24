@@ -4,9 +4,10 @@ from flask_cors import CORS
 from flask_migrate import Migrate  # Import Flask-Migrate
 from config import Config
 from models import User, Message, connect_db, db
-from uuid import uuid4
+from uuid import uuid4, UUID
+from random import randint
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token, ExpiredSignatureError
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,9 +18,8 @@ connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 bcrypt = Bcrypt(app)
 
-# Later ### TODO: handle guest users
-#### TODO: later  in 'disconnect' ##
-#### TODO: handle guest users(in guest_users)
+active_users = {} # Tracks authenticated users
+guest_users = {} # Tracks guest users
 
 @app.route('/')
 def index():
@@ -81,9 +81,6 @@ def register():
         return {"msg": f"Error registering user: {str(e)}"}, 500
 
 
-
-
-# TODO: work with database( Message)
 @socketio.on('message')
 def handle_message(data):
 
@@ -95,7 +92,7 @@ def handle_message(data):
         return
 
 
-    cur_user = User.query.filter_by(id =  user_id_from_frontend).one_or_none()
+    cur_user = User.query.filter_by(id = user_id_from_frontend).one_or_none()
 
     if not cur_user:
         emit('error', {'msg': 'User not found'}, to=request.sid)
@@ -114,7 +111,7 @@ def handle_message(data):
         return
 
     print(f"Message from {cur_user.username}: {msg}")
-    send({'system': False, 'username':cur_user.username, 'msg':msg}, broadcast=True)
+    emit('new_message',{'system': False, 'username':cur_user.username, 'msg':msg}, broadcast=True)
 
 
 @socketio.on('request_welcome')
@@ -126,15 +123,51 @@ def handle_welcome(data):
 @socketio.on('connect')
 def handle_connect():
     print("A user connected!")
+    user_id = request.sid # Unique session ID for the client
+    token = request.args.get('token') # Get the JWT token from the query params
+
+    username = None
+
+    if token:
+        try:
+            decoded_token = decode_token(token) # Manually decode JWT
+            identity = decoded_token.get("sub")  # Extract user ID
+            user_uuid = UUID(identity)  # Convert back to UUID
+            user = User.query.filter_by(id = user_uuid).one_or_none()
+
+            if user:
+                username = user.username
+                active_users[user_id] = {"username": username, 'user_id': user.id }
+                print(f"Authenticated user {username} connected with session {user_id}")
+            else:
+                emit('auth_error', {'msg': 'Invalid token, user not found'}, to=user_id)
+                return
+        except ExpiredSignatureError:
+            emit('auth_error', {'msg': 'Token expired, please log in again'}, to=user_id)
+            return
+        except Exception as e:
+            print(f"JWT verification failed: {e}")
+            emit('auth_error', {'msg': 'Invalid token'}, to=user_id)
+            return
+    if not username: # Assign guest username if authentication failed
+        username = f"Guest{randint(1000, 9999)}"
+        guest_users[user_id] = username
+
+    emit('user_joined', {'system': True, 'msg': f"{username} joined the chat"}, broadcast=True)
+
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
     user_id = request.sid
-    username = guest_users.pop(user_id, None)
-    if username:
-        emit('user_left',{'system': True, 'msg':f"{username} left the chat"}, broadcast=True)
-    print(f"User {username if username else 'Unknown'} ({user_id}) disconnected!")
+    if user_id in active_users:
+        username = active_users.pop(user_id)['username']
+        emit('user_left', {'system': True, 'msg': f"{username} left the chat"}, broadcast=True)
+        print(f"User {username} ({user_id}) disconnected from active users!")
+    elif user_id in guest_users:
+        username = guest_users.pop(user_id)
+        emit('user_left', {'system': True, 'msg': f"{username} left the chat"}, broadcast=True)
+        print(f"Guest {username} ({user_id}) disconnected!")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host="localhost", port=5001)
