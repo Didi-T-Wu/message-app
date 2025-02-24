@@ -2,26 +2,26 @@ import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { API_BASE_URL } from './config';
 
-const token = localStorage.getItem('jwt_token');
+const token = localStorage.getItem('token');
 const socket = io(API_BASE_URL,{
   query: { token }  // Send token in the query
 }); // Connect to the backend
 
 // TODO: handle guest users
 // TODO: Add timestamp to the messages
+// FIXME: Don't need set_username, after login or sign in, users will be directing to chat.
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [isUserSet, setIsUserSet] = useState(()=> !!localStorage.getItem('username') );
-  const [username, setUsername] = useState(()=> localStorage.getItem('username') || '');
-
+  const [username, setUsername] = useState('')
 
   useEffect(() => {
-    socket.on("message", (data) => {
+    socket.on("new_message", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
     socket.on("user_joined", (data) => {
+      setUsername(data.username)
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -29,50 +29,27 @@ const Chat = () => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
+    // TODO: sucket.on("error")
 
-    socket.on("username_set", (data) => {
-      console.log(`${data.username} is set`)
-      localStorage.setItem('username',data.username)
-      localStorage.setItem('user_id', data.user_id)
-      setIsUserSet(true)
-    });
 
     return () => {
       socket.off("message");
       socket.off("user_joined");
       socket.off("user_left");
-      socket.off("username_set")
     };
   }, []);
-
-  // Automatically send stored username when the page reloads
-// FIXME: This causes username form submit after type in one character
-  // useEffect(() => {
-  //   if (username && !isUserSet) {
-  //     socket.emit("set_username", { username });
-  //     setIsUserSet(true);
-  //   }
-  // }, [username, isUserSet]);
 
   const sendMessage = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      socket.emit('message',{ 'msg':message, 'user_id':localStorage.getItem('user_id', '') }); // Emit a message event
+      socket.emit('message',{ 'msg':message, 'username':username }); // Emit a message event
       setMessage("");
     }
   };
 
-  const sendNewUser = (e) => {
-    e.preventDefault();
-    if (username.trim() === "") return;
-    socket.emit("set_username", { username });
-  };
-
   return (
     <div>
-      {isUserSet?
-      (<div>
-        <h2>Chat</h2>
+      <h2>Chat</h2>
         <div style={{ border: "1px solid black", padding: "10px", height: "200px", overflowY: "scroll" }}>
         {messages.map((data, index) =>{
           if(data.system){
@@ -95,25 +72,6 @@ const Chat = () => {
             Send
           </button>
         </form>
-        </div>):(
-          <div>
-            <h2>Set User Name</h2>
-            <form onSubmit={sendNewUser}>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Type your username..."
-
-            />
-              <button
-                type="submit"
-                disabled={!username.trim()}
-                >
-                  Join the Chat
-              </button>
-           </form>
-          </div>)}
     </div>
   );
 };

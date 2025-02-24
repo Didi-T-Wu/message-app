@@ -7,7 +7,7 @@ from models import User, Message, connect_db, db
 from uuid import uuid4, UUID
 from random import randint
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token, ExpiredSignatureError
+from flask_jwt_extended import create_access_token, decode_token, ExpiredSignatureError
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -41,8 +41,11 @@ def login():
 
     # Generate JWT token
     access_token = create_access_token(identity=user.id)
-
-    return {"msg": "Login successful", "token": access_token, "user_id": user.id}
+    # FIXME: send username back instead of user_id
+    return {
+        "msg": "Login successful",
+        "token": access_token
+        }
 
 
 @app.route('/api/register', methods=['POST'])
@@ -73,7 +76,6 @@ def register():
         return {
             "msg": "User registered successfully",
             "token": access_token,
-            "user_id": new_user.id
             }, 201
 
     except Exception as e:
@@ -84,34 +86,34 @@ def register():
 @socketio.on('message')
 def handle_message(data):
 
-    user_id_from_frontend = data.get('user_id','')
+    username_from_frontend = data.get('username','')
     msg = data.get('msg',"").strip()
 
-    if not user_id_from_frontend or not msg:
+    if not username_from_frontend or not msg:
         emit('error', {'msg': 'Invalid user or empty message'}, to=request.sid)
         return
 
+    if not username_from_frontend.startswith('Guest'):
+        cur_user = User.query.filter_by(username = username_from_frontend).one_or_none()
 
-    cur_user = User.query.filter_by(id = user_id_from_frontend).one_or_none()
-
-    if not cur_user:
-        emit('error', {'msg': 'User not found'}, to=request.sid)
-        return
+        if not cur_user:
+            emit('error', {'msg': 'User not found'}, to=request.sid)
+            return
 
 
-    new_msg= Message(user_id = cur_user.id, text=msg)
+        new_msg= Message(user_id = cur_user.id, text=msg)
 
-    try:
-        db.session.add(new_msg)
-        db.session.commit()
-    except Exception as e:
-        print(f"Database error: {e}")
-        db.session.rollback() # Undo the changes made during this session
-        emit('error', {'msg': 'Failed to store message'}, to=request.sid)
-        return
+        try:
+            db.session.add(new_msg)
+            db.session.commit()
+        except Exception as e:
+            print(f"Database error: {e}")
+            db.session.rollback() # Undo the changes made during this session
+            emit('error', {'msg': 'Failed to store message'}, to=request.sid)
+            return
 
-    print(f"Message from {cur_user.username}: {msg}")
-    emit('new_message',{'system': False, 'username':cur_user.username, 'msg':msg}, broadcast=True)
+    print(f"Message from {username_from_frontend}: {msg}")
+    emit('new_message',{'system': False, 'username':username_from_frontend, 'msg':msg}, broadcast=True)
 
 
 @socketio.on('request_welcome')
@@ -152,8 +154,8 @@ def handle_connect():
     if not username: # Assign guest username if authentication failed
         username = f"Guest{randint(1000, 9999)}"
         guest_users[user_id] = username
-
-    emit('user_joined', {'system': True, 'msg': f"{username} joined the chat"}, broadcast=True)
+    # FIXME: send username as well
+    emit('user_joined', {'system': True, 'username':username, 'msg': f"{username} joined the chat"}, broadcast=True)
 
 
 

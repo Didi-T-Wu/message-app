@@ -64,7 +64,6 @@ const Signup = ()=> {
       const data = await response.json()
       console.log("Sign up successful")
       localStorage.setItem('token', data.token)
-      localStorage.setItem('user_id', data.user_id);
 
       setSuccessMsg("Sign up successful! Redirecting...");
       setTimeout(() => navigate('/chat'), 1500);  // Wait 1.5 sec before redirecting
