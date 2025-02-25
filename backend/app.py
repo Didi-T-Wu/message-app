@@ -7,7 +7,7 @@ from models import User, Message, connect_db, db
 from uuid import uuid4, UUID
 from random import randint
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, decode_token
+from flask_jwt_extended import create_access_token, decode_token, JWTManager
 from jwt import ExpiredSignatureError
 
 app = Flask(__name__)
@@ -18,6 +18,7 @@ CORS(app)
 connect_db(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
 active_users = {} # Tracks authenticated users
 guest_users = {} # Tracks guest users
@@ -69,6 +70,7 @@ def register():
 
     try:
         db.session.add(new_user)
+        db.session.flush()  # Ensure the new user is flushed to the DB
         db.session.commit()
 
         # Generate JWT token
@@ -80,7 +82,10 @@ def register():
             }, 201
 
     except Exception as e:
+        # Rollback if there's any error
         db.session.rollback()
+        # Log error and return an appropriate message
+        app.logger.error(f"Error registering user: {str(e)}")
         return {"msg": f"Error registering user: {str(e)}"}, 500
 
 

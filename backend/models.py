@@ -21,7 +21,7 @@ class User(db.Model):
         nullable=False
     )
 
-    password_hash = db.Column(
+    password= db.Column(
         db.String,
         nullable=False
     )  # Store hashed passwords
