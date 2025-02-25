@@ -1,47 +1,67 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from './config';
 
-const token = localStorage.getItem('token');
-const socket = io(API_BASE_URL,{
-  query: { token }  // Send token in the query
-}); // Connect to the backend
 
 // TODO: handle guest users
 // TODO: Add timestamp to the messages
-// FIXME: Don't need set_username, after login or sign in, users will be directing to chat.
+
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState(sessionStorage.getItem("username") || "");
+  const [socket, setSocket] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    socket.on("new_message", (data) => {
+    const token = localStorage.getItem('token');
+    if(!token || !username){
+      navigate('/login') // Redirect to login if token is missing
+      return;
+    }
+
+    // Initialize socket connection
+    // Avoid multiple socket connections
+    if (!socket) {
+      const newSocket = io(API_BASE_URL,{
+      query: { token }  // Send token in the query
+    }); // Connect to the backend
+
+    // Handle incoming messages
+    newSocket.on("new_message", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
-    socket.on("user_joined", (data) => {
+    newSocket.on("user_joined", (data) => {
+      if (data.username.startswith('Guest')){
+        sessionStorage.setItem("username", data.username)
+      }
       setUsername(data.username)
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
-    socket.on("user_left", (data) => {
+    newSocket.on("user_left", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
-    // TODO: sucket.on("error")
+    newSocket.on("auth_error", (err) => {
+      // TODO: make it a flash or warning
+      console.error(err)
+      localStorage.removeItem("token");
+      navigate("/login");
+    });
 
+    setSocket(newSocket);}
 
     return () => {
-      socket.off("message");
-      socket.off("user_joined");
-      socket.off("user_left");
+      if (socket) socket.disconnect();
     };
-  }, []);
+  }, [socket, navigate]);
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (message.trim()) {
+    if (message.trim() && socket) {
       socket.emit('message',{ 'msg':message, 'username':username }); // Emit a message event
       setMessage("");
     }

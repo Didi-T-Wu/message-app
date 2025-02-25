@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 import { ClipLoader } from "react-spinners";
 
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from '../config';
 
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})

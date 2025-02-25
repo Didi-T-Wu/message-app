@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 import { ClipLoader } from "react-spinners";
 
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from '../config';
 
 const Signup = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
@@ -42,7 +42,7 @@ const Signup = ()=> {
     setErrorMsg('');
 
     try{
-      const response =  await fetch(`${API_BASE_URL}/api/login`, {
+      const response =  await fetch(`${API_BASE_URL}/api/register`, {
         method:"POST",
         headers:{ "Content-Type": "application/json" },
         body:JSON.stringify(formData)
