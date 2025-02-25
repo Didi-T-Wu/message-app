@@ -50,7 +50,7 @@ def login():
         }
 
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/signup', methods=['POST'])
 def register():
     data = request.json
     username = data.get("username")
