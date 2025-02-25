@@ -5,6 +5,7 @@ import './App.css';
 import Chat from './Chat';
 import Login from './login/Login';
 import Signup from './signup/Signup';
+import Home from './Home'
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup/>} />
+        <Route path="/home" element={<Home/>} />
       </Routes>
     </div>
   );

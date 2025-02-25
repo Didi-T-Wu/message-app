@@ -21,6 +21,18 @@ const Login = ()=> {
     }
   }, [errorMsg]);
 
+  useEffect(()=>{
+    if(successMsg){
+      console.log("Success message set, starting redirect timeout...");
+      const timer = setTimeout(() => {
+        console.log("Redirecting to /chat...");
+        navigate('/home')
+      }, 1500);  // Wait 1.5 sec before redirecting
+      return () => clearTimeout(timer);
+    }
+
+  }, [successMsg, navigate])
+
 
   const onFormDataChange=(e)=>{
     const {value, name} = e.target
@@ -67,8 +79,6 @@ const Login = ()=> {
       console.log("Login successful")
       localStorage.setItem('token', data.token)
       setSuccessMsg("Login successful! Redirecting...");
-      setTimeout(() => navigate('/chat'), 1500);  // Wait 1.5 sec before redirecting
-
 
     }catch(err){
       if (err.message.includes("Failed to fetch")) {
