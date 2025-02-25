@@ -16,7 +16,9 @@ const Chat = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if(!token || !username){
+    // FIXME: if(!token || !username) => f(!token) debug login and signup user has no username when running this
+    if(!token){
+      console.log('no token')
       navigate('/login') // Redirect to login if token is missing
       return;
     }

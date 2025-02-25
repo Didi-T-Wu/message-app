@@ -26,7 +26,7 @@ const Login = ()=> {
       console.log("Success message set, starting redirect timeout...");
       const timer = setTimeout(() => {
         console.log("Redirecting to /chat...");
-        navigate('/home')
+        navigate('/chat')
       }, 1500);  // Wait 1.5 sec before redirecting
       return () => clearTimeout(timer);
     }
