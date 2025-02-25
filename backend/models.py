@@ -21,6 +21,11 @@ class User(db.Model):
         nullable=False
     )
 
+    password_hash = db.Column(
+        db.String,
+        nullable=False
+    )  # Store hashed passwords
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.now(timezone.utc)

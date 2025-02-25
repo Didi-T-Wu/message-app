@@ -7,7 +7,8 @@ from models import User, Message, connect_db, db
 from uuid import uuid4, UUID
 from random import randint
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, decode_token, ExpiredSignatureError
+from flask_jwt_extended import create_access_token, decode_token
+from jwt import ExpiredSignatureError
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -94,6 +95,7 @@ def handle_message(data):
         return
 
     if not username_from_frontend.startswith('Guest'):
+        # registered user, verify it and save the msg in the db
         cur_user = User.query.filter_by(username = username_from_frontend).one_or_none()
 
         if not cur_user:
@@ -114,12 +116,6 @@ def handle_message(data):
 
     print(f"Message from {username_from_frontend}: {msg}")
     emit('new_message',{'system': False, 'username':username_from_frontend, 'msg':msg}, broadcast=True)
-
-
-@socketio.on('request_welcome')
-def handle_welcome(data):
-    print(f"Request received: {data['msg']}")
-    emit('welcome',{ 'msg' :"welcome from flask"}, broadcast=True)
 
 
 @socketio.on('connect')
