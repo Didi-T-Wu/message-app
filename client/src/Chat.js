@@ -16,6 +16,7 @@ const Chat = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('token from localStorage in useEffect in Chat.js', token)
     // FIXME: if(!token || !username) => f(!token) debug login and signup user has no username when running this
     if(!token){
       console.log('no token')
@@ -26,8 +27,9 @@ const Chat = () => {
     // Initialize socket connection
     // Avoid multiple socket connections
     if (!socket) {
+      console.log('Initialize socket connection in useEffect in Chat.js')
       const newSocket = io(API_BASE_URL,{
-      query: { token }  // Send token in the query
+      query: { token }
     }); // Connect to the backend
 
     // Handle incoming messages
@@ -36,7 +38,10 @@ const Chat = () => {
     });
 
     newSocket.on("user_joined", (data) => {
-      if (data.username.startswith('Guest')){
+      console.log("Received data:", data);
+      console.log("Username type:", typeof data.username);
+
+      if (data.username.startsWith('Guest')){
         sessionStorage.setItem("username", data.username)
       }
       setUsername(data.username)

@@ -78,6 +78,8 @@ const Login = ()=> {
       const data = await response.json()
       console.log("Login successful")
       localStorage.setItem('token', data.token)
+      console.log('set token in localStorage in Login.js', data.token)
+
       setSuccessMsg("Login successful! Redirecting...");
 
     }catch(err){

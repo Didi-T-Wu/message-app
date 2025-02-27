@@ -70,11 +70,13 @@ def register():
 
     try:
         db.session.add(new_user)
+        print('new_user from /api/signup', new_user)
         db.session.flush()  # Ensure the new user is flushed to the DB
         db.session.commit()
-
+        print('new_user.id from /api/signup', new_user.id)
         # Generate JWT token
         access_token = create_access_token(identity=new_user.id)
+        print('access_token from /api/signup',access_token )
 
         return {
             "msg": "User registered successfully",
@@ -82,6 +84,7 @@ def register():
             }, 201
 
     except Exception as e:
+        print("Exception occurred from /api/signup", str(e))
         # Rollback if there's any error
         db.session.rollback()
         # Log error and return an appropriate message
@@ -127,15 +130,18 @@ def handle_message(data):
 def handle_connect():
     print("A user connected!")
     user_id = request.sid # Unique session ID for the client
+
     token = request.args.get('token') # Get the JWT token from the query params
+    if not token:
+        print('token received from request.args.get("token")', token)
 
     username = None
 
     if token:
         try:
             decoded_token = decode_token(token) # Manually decode JWT
-            identity = decoded_token.get("sub")  # Extract user ID
-            user_uuid = UUID(identity)  # Convert back to UUID
+            user_uuid = decoded_token.get("sub")  # Extract user ID
+            # user_uuid = UUID(identity)  ###### NO Convert back to UUID !!!!!!!
             user = User.query.filter_by(id = user_uuid).one_or_none()
 
             if user:
@@ -149,6 +155,7 @@ def handle_connect():
             emit('auth_error', {'msg': 'Token expired, please log in again'}, to=user_id)
             return
         except Exception as e:
+            print('error from handle_connection  except Exception as e')
             print(f"JWT verification failed: {e}")
             emit('auth_error', {'msg': 'Invalid token'}, to=user_id)
             return

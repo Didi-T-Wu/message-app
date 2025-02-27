@@ -63,6 +63,7 @@ const Signup = ()=> {
 
       const data = await response.json()
       console.log("Sign up successful")
+      console.log('data received from backend in Signup.js', data)
       localStorage.setItem('token', data.token)
 
       setSuccessMsg("Sign up successful! Redirecting...");
