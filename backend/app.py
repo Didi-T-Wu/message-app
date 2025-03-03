@@ -21,7 +21,6 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 active_users = {} # Tracks authenticated users
-guest_users = {} # Tracks guest users
 
 @app.route('/')
 def index():
@@ -159,9 +158,7 @@ def handle_connect():
             print(f"JWT verification failed: {e}")
             emit('auth_error', {'msg': 'Invalid token'}, to=user_id)
             return
-    if not username: # Assign guest username if authentication failed
-        username = f"Guest{randint(1000, 9999)}"
-        guest_users[user_id] = username
+
     # FIXME: send username as well
     emit('user_joined', {'system': True, 'username':username, 'msg': f"{username} joined the chat"}, broadcast=True)
 
@@ -169,15 +166,12 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    print('A user disconnected')
     user_id = request.sid
     if user_id in active_users:
         username = active_users.pop(user_id)['username']
         emit('user_left', {'system': True, 'msg': f"{username} left the chat"}, broadcast=True)
         print(f"User {username} ({user_id}) disconnected from active users!")
-    elif user_id in guest_users:
-        username = guest_users.pop(user_id)
-        emit('user_left', {'system': True, 'msg': f"{username} left the chat"}, broadcast=True)
-        print(f"Guest {username} ({user_id}) disconnected!")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host="localhost", port=5001)
