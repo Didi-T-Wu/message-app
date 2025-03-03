@@ -159,7 +159,6 @@ def handle_connect():
             emit('auth_error', {'msg': 'Invalid token'}, to=user_id)
             return
 
-    # FIXME: send username as well
     emit('user_joined', {'system': True, 'username':username, 'msg': f"{username} joined the chat"}, broadcast=True)
 
 
