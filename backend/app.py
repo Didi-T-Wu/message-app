@@ -42,10 +42,11 @@ def login():
 
     # Generate JWT token
     access_token = create_access_token(identity=user.id)
-    # FIXME: send username back instead of user_id
+
     return {
         "msg": "Login successful",
-        "token": access_token
+        "token": access_token,
+        "username":username
         }
 
 
