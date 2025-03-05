@@ -1,24 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from './config';
+import { AuthContext } from "./AuthProvider";
 
 
-// TODO: handle guest users
+
 // TODO: Add timestamp to the messages
-
+// handle multiple users, curUser, aware that users and token stored in localStorage
+// curUser stored in sessionStorage
+// users: { username: token ...} , curUser: username, token:`token_${username}`:token
+// TODO: handle logout in user_left
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [username, setUsername] = useState(sessionStorage.getItem("username") || "");
   const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
+  const {curUser, getCurUserToken} = useContext(AuthContext)
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    console.log('token from localStorage in useEffect in Chat.js', token)
-    // FIXME: if(!token || !username) => f(!token) debug login and signup user has no username when running this
-    if(!token){
+    //load curUser(username) and token'
+    const curUserToken = getCurUserToken(curUser)
+
+    console.log('token from localStorage in useEffect in Chat.js', curUserToken)
+    if(!curUserToken){
       console.log('no token')
       navigate('/login') // Redirect to login if token is missing
       return;
@@ -26,10 +31,11 @@ const Chat = () => {
 
     // Initialize socket connection
     // Avoid multiple socket connections
+    // TODO: but I want to handle multiple users from different tabs
     if (!socket) {
       console.log('Initialize socket connection in useEffect in Chat.js')
       const newSocket = io(API_BASE_URL,{
-      query: { token }
+      query: { token:curUserToken }
     }); // Connect to the backend
 
     // Handle incoming messages
@@ -41,10 +47,6 @@ const Chat = () => {
       console.log("Received data:", data);
       console.log("Username type:", typeof data.username);
 
-      if (data.username.startsWith('Guest')){
-        sessionStorage.setItem("username", data.username)
-      }
-      setUsername(data.username)
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -55,7 +57,6 @@ const Chat = () => {
     newSocket.on("auth_error", (err) => {
       // TODO: make it a flash or warning
       console.error(err)
-      localStorage.removeItem("token");
       navigate("/login");
     });
 
@@ -69,7 +70,7 @@ const Chat = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message.trim() && socket) {
-      socket.emit('message',{ 'msg':message, 'username':username }); // Emit a message event
+      socket.emit('message',{ 'msg':message, 'username':curUser }); // Emit a message event
       setMessage("");
     }
   };

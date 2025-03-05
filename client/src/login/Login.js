@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 import { ClipLoader } from "react-spinners";
 
+// import { Button } from '@shadcn/ui'
+
 import { API_BASE_URL } from '../config';
+import { AuthContext } from '../AuthProvider'
 
 const Login = ()=> {
   const [formData, setFormData] = useState({username:'', password:''})
@@ -10,6 +13,7 @@ const Login = ()=> {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useContext(AuthContext)
 
   useEffect(() => {
     if (errorMsg) {
@@ -77,8 +81,8 @@ const Login = ()=> {
 
       const data = await response.json()
       console.log("Login successful")
-      localStorage.setItem('token', data.token)
-      console.log('set token in localStorage in Login.js', data.token)
+      //TODO: get token and username from backend then login(using login function in auth context)
+      login(data.username, data.token)
 
       setSuccessMsg("Login successful! Redirecting...");
 
@@ -94,6 +98,12 @@ const Login = ()=> {
   }
 
   return(<div>
+    <h1 className="text-2xl font-bold underline text-blue-500">
+      Hello world!
+    </h1>
+    {/* <div className="p-4">
+      <Button variant="default">Click Me</Button>
+    </div> */}
     <form onSubmit={onFormSubmit}>
       <label>
         Username

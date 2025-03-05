@@ -47,8 +47,12 @@ const AuthProvider = ({children}) => {
 
   }
 
+  const getCurUserToken =(username) => {
+    return users[username]
+  }
+
   return (
-      <AuthContext.Provider value={{users, curUser, login, logout}}>
+      <AuthContext.Provider value={{users, curUser, login, logout, getCurUserToken }}>
           {children}
       </AuthContext.Provider>
   );
